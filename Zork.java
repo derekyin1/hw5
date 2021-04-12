@@ -1,3 +1,9 @@
+/** Derek Yin 113251504 Recitation Section 1
+*  This class runs a terminal-driven menu that allows a user to read, write, edit, and play custom Zork games.
+*
+*  @author Derek Yin
+*/
+
 import java.util.Scanner;
 import java.util.zip.DataFormatException;
 import java.io.*;
@@ -52,6 +58,13 @@ public class Zork{
 
 
   }
+
+/**
+*This method runs a second menu displayed when user chooses to edit the StoryTree.
+*
+*@param tree
+*the stored tree that is to be edited.
+*/
 
   public static void editTree(StoryTree tree){
     boolean menu = true;
@@ -190,7 +203,13 @@ public class Zork{
       }
     }
   }
-
+/**
+*This method allows the user to play the Zork game.
+*
+*@param tree
+*the stored tree to be played.
+*
+*/
   public static void playTree(StoryTree tree){
     boolean gameOver = false;
     StoryTreeNode node = tree.cursor;
