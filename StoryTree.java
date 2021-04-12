@@ -1,3 +1,6 @@
+import java.util.Scanner;
+import java.io.*;
+import java.util.zip.DataFormatException;
 public class StoryTree{
   StoryTreeNode root;
   StoryTreeNode cursor;
@@ -11,14 +14,100 @@ public class StoryTree{
   public static StoryTree readTree(String filename) throws DataFormatException{
     if (filename.equals("") || filename == null) throw new IllegalArgumentException();
     if (!filename.substring(filename.length()-4, filename.length()).equals(".txt")) throw new DataFormatException();
+    //handle file not found exception by making empty tree. (catch)
+    try {
+
+      Scanner fileIn = new Scanner(new File(filename));
+      StoryTree newTree = new StoryTree();
+      int counter = 1;
+      while (fileIn.hasNextLine()){
+        String line = fileIn.nextLine();
+        String[] tokens = line.split(" \\| ");
+        if (counter == 15){
+          for (int i = 0; i < tokens.length; i++){
+            System.out.println(tokens[i]);
+          }
+        }
+        StoryTreeNode newNode = new StoryTreeNode(tokens[0], tokens[1], tokens[2]);
+        System.out.println("test " + counter);
+        StoryTreeNode currentNode = newTree.root;
+        int i = 0;
+        while (i <= tokens[0].length() - 1 - 2){
+          System.out.println("index " + i);
+          System.out.println("Iterate until " + (tokens[0].length() - 1 - 2));
+          System.out.println("Character at index " + tokens[0].charAt(i));
+          System.out.println(tokens[0]);
+          if (tokens[0].charAt(i) == '1'){
+            currentNode = currentNode.getLeftChild();
+            System.out.println("left");
+            i+=2;
+          }
+
+          else if (tokens[0].charAt(i) == '2'){
+            currentNode = currentNode.getMiddleChild();
+            System.out.println("mid");
+            i+=2;
+          }
+
+          else if (tokens[0].charAt(i) == '3'){
+            currentNode = currentNode.getRightChild();
+            System.out.println("right");
+            i+=2;
+          }
+
+
+
+        }
+        newTree.cursor = currentNode;
+        newTree.addChild(newNode);
+        counter++;
+
+      }
+      fileIn.close();
+      return newTree;
+
+    }
+
+    catch (FileNotFoundException fnfe){
+      StoryTree newTree = new StoryTree();
+      return newTree;
+    }
+
+
+  }
+
+
+
+  public static void saveTree(String filename, StoryTree tree){
+    if (filename.equals("") || filename == null || tree == null) throw new IllegalArgumentException();
+
+    try {
+      PrintWriter fileOut = new PrintWriter(new File(filename));
+      //fileOut.println(tree.cursor.preorder()); //TESTING
+      fileOut.close();
+
+    }
+    catch (FileNotFoundException fnfe){
+
+    }
+  }
+
+
+
+  public String filePrint(StoryTreeNode init){
+    String toReturn = init.getPosition() + " | " + init.getOption() + " | " + init.getMessage();
+    if (init.getLeftChild() != null) this.filePrint(init.getLeftChild());
+    if (init.getMiddleChild() != null) this.filePrint(init.getMiddleChild());
+    if (init.getRightChild() != null) this.filePrint(init.getRightChild());
+    return toReturn;
 
 
 
   }
 
-  public static void saveTree(String filename, StoryTree tree){
-    if (filename.equals("") || filename == null || tree == null) throw new IllegalArgumentException();
 
+  public StoryTreeNode getCursor(){
+    return cursor;
   }
 
   public GameState getGameState(){
@@ -31,6 +120,10 @@ public class StoryTree{
 
   public String getCursorMessage(){
     return cursor.getMessage();
+  }
+
+  public String getCursorOption(){
+    return cursor.getOption();
   }
 
   public String[][] getOptions(){
@@ -68,17 +161,32 @@ public class StoryTree{
   }
 
   public void selectChild(String position) throws InvalidArgumentException, NodeNotPresentException{
-    if (position == null || position.equals("")) throw new InvalidArgumentException();
-    if (!position.equals(cursor.getPosition() + "-1") && !position.equals(cursor.getPosition() + "-2") && !position.equals(cursor.getPosition() + "-3")) throw new InvalidArgumentException();
+    if (position == null || position.equals("")) throw new InvalidArgumentException("");
+    if (!position.equals(cursor.getPosition() + "-1") && !position.equals(cursor.getPosition() + "-2") && !position.equals(cursor.getPosition() + "-3")) throw new InvalidArgumentException("");
     if (position.equals(cursor.getPosition() + "-1") && cursor.getLeftChild() != null) cursor = cursor.getLeftChild();
     else if (position.equals(cursor.getPosition() + "-2") && cursor.getMiddleChild() != null) cursor = cursor.getMiddleChild();
     else if (position.equals(cursor.getPosition() + "-3") && cursor.getRightChild() != null) cursor = cursor.getRightChild();
-    else throw new NodeNotPresentException();
+    else throw new NodeNotPresentException("");
+  }
+
+  public void selectChild(int child) throws NodeNotPresentException{
+    if (child == 1){
+      if (cursor.getLeftChild() == null) throw new NodeNotPresentException("");
+      else cursor = cursor.getLeftChild();
+    }
+    if (child == 2){
+      if (cursor.getMiddleChild() == null) throw new NodeNotPresentException("");
+      else cursor = cursor.getMiddleChild();
+    }
+    if (child == 3){
+      if (cursor.getRightChild() == null) throw new NodeNotPresentException("");
+      else cursor = cursor.getRightChild();
+    }
   }
 
   public void addChild(String option, String message) throws InvalidArgumentException, TreeFullException{
-    if (option == null || option.equals("") || message == null || message.equals("")) throw new InvalidArgumentException();
-    if (cursor.numChildren() == 3) throw new TreeFullException();
+    if (option == null || option.equals("") || message == null || message.equals("")) throw new InvalidArgumentException("");
+    if (cursor.numChildren() == 3) throw new TreeFullException("");
     StoryTreeNode newChild = new StoryTreeNode(option, message);
     if (cursor.getLeftChild() == null){
       cursor.setLeftChild(newChild);
@@ -92,38 +200,43 @@ public class StoryTree{
       cursor.setRightChild(newChild);
       newChild.setPosition(cursor.getPosition() + "-3");
     }
-    else throw new TreeFullException();
+    else throw new TreeFullException("");
   }
 
-  public StoryTreeNode removeChild(String position){
+  public void addChild(StoryTreeNode node){
+    if (cursor.getLeftChild() == null){
+      cursor.setLeftChild(node);
+    }
+    else if (cursor.getMiddleChild() == null){
+      cursor.setMiddleChild(node);
+    }
+    else if (cursor.getRightChild() == null){
+      cursor.setRightChild(node);
+    }
+  }
+
+
+  public StoryTreeNode removeChild(String position) throws NodeNotPresentException{
     StoryTreeNode nodePtr = root;
     StoryTreeNode parent = null;
     while (nodePtr != null){
       parent = nodePtr;
 
     }
+    return nodePtr;
   }
 
-  public void shiftLeft(String position){
-    if (node == null) return;
-    else{
-
-//handle shifting here, then rename node
-      shiftLeft(node.getLeftChild());
-      shiftLeft(node.getMiddleChild());
-      shiftLeft(node.getRightChild());
-    }
 
 
 
 
-//recursively call shiftLeft on the child subtrees left, middle, right
-  }
+
+
 
   public void selectNode(String position){
     StoryTreeNode currentNode = root;
     int i = 0;
-    while (i <= (position.length + 1) / 2)){
+    while (i <= (position.length() + 1) / 2){
       if (position.charAt(i) == '1') currentNode = currentNode.getLeftChild();
       if (position.charAt(i) == '2') currentNode = currentNode.getMiddleChild();
       if (position.charAt(i) == '3') currentNode = currentNode.getRightChild();
@@ -132,6 +245,28 @@ public class StoryTree{
     }
     cursor = currentNode;
   }
+
+  public int addHelper(String position){
+    int child = -1;
+
+    return child;
+  }
+
+
+  public static void main(String[] args) {
+    try{
+      StoryTree test = readTree("SampleStory.txt");
+      //saveTree("Test.txt", test);
+      test.cursor.preorder();
+
+    }
+    catch (DataFormatException e){
+
+    }
+
+
+  }
+
 
 
 }

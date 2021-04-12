@@ -92,4 +92,12 @@ public class StoryTreeNode{
 
   }
 
+  public void preorder(){
+    System.out.println(this.getPosition() + " | " + this.getOption() + " | " + this.getMessage());
+    if (this.getLeftChild() != null) this.getLeftChild().preorder();
+    if (this.getMiddleChild() != null) this.getMiddleChild().preorder();
+    if (this.getRightChild() != null) this.getRightChild().preorder();
+
+  }
+
 }
