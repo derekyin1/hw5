@@ -27,12 +27,12 @@ public class StoryTreeNode{
   }
 
   public boolean isWinningNode(){
-     if (this.isLeaf() && message.equals(WIN_MESSAGE)) return true;
+     if (this.isLeaf() && message.contains(WIN_MESSAGE)) return true;
      return false;
   }
 
   public boolean isLosingNode(){
-    if (this.isLeaf() && message.equals(LOSE_MESSAGE)) return true;
+    if (this.isLeaf() && !message.contains(WIN_MESSAGE)) return true;
     return false;
   }
 

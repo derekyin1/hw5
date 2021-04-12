@@ -1,5 +1,6 @@
 import java.util.Scanner;
 import java.util.zip.DataFormatException;
+import java.io.*;
 public class Zork{
   public static void main(String[] args) {
     Scanner in = new Scanner(System.in);
@@ -22,8 +23,10 @@ public class Zork{
             editTree(story);
           }
           else if (choice.equals("p") || choice.equals("P")){
+            playTree(story);
           }
           else if (choice.equals("Q") || choice.equals("q")){
+            StoryTree.saveTree(filename, story);
             init = false;
             fileInput = false;
           }
@@ -85,6 +88,11 @@ public class Zork{
             }
             catch (NodeNotPresentException e){
               System.out.println("No child " + child + " for current node.");
+              menu = false;
+              menu = true;
+            }
+            catch (InvalidArgumentException e){
+              System.out.println("Invalid input.");
               menu = false;
               menu = true;
             }
@@ -184,7 +192,65 @@ public class Zork{
   }
 
   public static void playTree(StoryTree tree){
+    boolean gameOver = false;
+    StoryTreeNode node = tree.cursor;
+    boolean firstNode = true;
+    while (!gameOver){
+      if (firstNode){
+        System.out.println(node.getOption() + "\n");
+        firstNode = false;
+      }
+      System.out.println(node.getMessage());
+      if (node.isLeaf() && node.isWinningNode()){
+        System.out.println("\nThanks for playing.");
+        gameOver = true;
+        break;
+      }
+      if (node.isLeaf() && node.isLosingNode()){
+        System.out.println("\nThanks for playing.");
+        gameOver = true;
+        break;
+      }
+      String options = "";
+      String[][] array = tree.getOptions();
+      for (int i = 1; i <= node.numChildren(); i++){
+        options += i + ") " + array[i-1][1] + "\n";
+      }
+      System.out.println(options);
+      Scanner un = new Scanner(System.in);
+      boolean success = false;
+      while (!success){
+        System.out.println("Please make a choice.");
+        if (un.hasNextInt()){
+          int choice = un.nextInt();
+          try {
+            tree.selectChild(choice);
+            node = tree.cursor;
+            success = true;
+          }
+          catch (InvalidArgumentException e){
+            System.out.println("Invalid input.");
+            success = true;
+            success = false;
+            un.nextLine();
+          }
+          catch (NodeNotPresentException e){
+            System.out.println("Node not present.");
+            success = true;
+            success = false;
+            un.nextLine();
+          }
+        }
+        else{
+          System.out.println("Invalid input. Try again.\n");
+          success = true;
+          success = false;
+          un.nextLine();
+        }
+      }
 
+
+    }
   }
 
 

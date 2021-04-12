@@ -5,6 +5,7 @@ public class StoryTree{
   StoryTreeNode root;
   StoryTreeNode cursor;
   GameState state;
+  boolean newFileCreated = false;
 
   public StoryTree(){
     root = new StoryTreeNode("root", "root", "Hello, welcome to Zork!");
@@ -60,6 +61,7 @@ public class StoryTree{
 
     catch (FileNotFoundException fnfe){
       StoryTree newTree = new StoryTree();
+      newTree.newFileCreated = true;
       return newTree;
     }
 
@@ -73,6 +75,7 @@ public class StoryTree{
 
     try {
       PrintWriter fileOut = new PrintWriter(new File(filename));
+      tree.resetCursor();
       tree.cursor.preorder();
       fileOut.println(StoryTreeNode.lines); //TESTING
 
@@ -87,16 +90,6 @@ public class StoryTree{
 
 
 
-  public String filePrint(StoryTreeNode init){
-    String toReturn = init.getPosition() + " | " + init.getOption() + " | " + init.getMessage();
-    if (init.getLeftChild() != null) this.filePrint(init.getLeftChild());
-    if (init.getMiddleChild() != null) this.filePrint(init.getMiddleChild());
-    if (init.getRightChild() != null) this.filePrint(init.getRightChild());
-    return toReturn;
-
-
-
-  }
 
 
   public StoryTreeNode getCursor(){
@@ -162,7 +155,8 @@ public class StoryTree{
     else throw new NodeNotPresentException("");
   }
 
-  public void selectChild(int child) throws NodeNotPresentException{
+  public void selectChild(int child) throws NodeNotPresentException, InvalidArgumentException{
+    if (child < 0 || child > cursor.numChildren()) throw new InvalidArgumentException("");
     if (child == 1){
       if (cursor.getLeftChild() == null) throw new NodeNotPresentException("");
       else cursor = cursor.getLeftChild();
@@ -181,7 +175,13 @@ public class StoryTree{
     if (option == null || option.equals("") || message == null || message.equals("")) throw new InvalidArgumentException("");
     if (cursor.numChildren() == 3) throw new TreeFullException("");
     StoryTreeNode newChild = new StoryTreeNode(option, message);
-    if (cursor.getLeftChild() == null){
+    if (newFileCreated){
+      root.setLeftChild(newChild);
+      cursor = root.getLeftChild();
+      newChild.setPosition("1");
+      newFileCreated = false;
+    }
+    else if (cursor.getLeftChild() == null){
       cursor.setLeftChild(newChild);
       newChild.setPosition(cursor.getPosition() + "-1");
     }
@@ -197,7 +197,13 @@ public class StoryTree{
   }
 
   public void addChild(StoryTreeNode node){
-    if (cursor.getLeftChild() == null){
+    if (newFileCreated){
+      root.setLeftChild(node);
+      cursor = root.getLeftChild();
+      node.setPosition("1");
+      newFileCreated = false;
+    }
+    else if (cursor.getLeftChild() == null){
       cursor.setLeftChild(node);
     }
     else if (cursor.getMiddleChild() == null){
