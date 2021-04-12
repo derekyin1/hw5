@@ -13,45 +13,35 @@ public class StoryTree{
 
   public static StoryTree readTree(String filename) throws DataFormatException{
     if (filename.equals("") || filename == null) throw new IllegalArgumentException();
-    if (!filename.substring(filename.length()-4, filename.length()).equals(".txt")) throw new DataFormatException();
+    if ( filename.length() < 5 || !filename.substring(filename.length()-4, filename.length()).equals(".txt")) throw new DataFormatException();
     //handle file not found exception by making empty tree. (catch)
     try {
 
       Scanner fileIn = new Scanner(new File(filename));
       StoryTree newTree = new StoryTree();
-      int counter = 1;
       while (fileIn.hasNextLine()){
         String line = fileIn.nextLine();
         String[] tokens = line.split(" \\| ");
-        if (counter == 15){
-          for (int i = 0; i < tokens.length; i++){
-            System.out.println(tokens[i]);
-          }
-        }
         StoryTreeNode newNode = new StoryTreeNode(tokens[0], tokens[1], tokens[2]);
-        System.out.println("test " + counter);
         StoryTreeNode currentNode = newTree.root;
         int i = 0;
         while (i <= tokens[0].length() - 1 - 2){
-          System.out.println("index " + i);
-          System.out.println("Iterate until " + (tokens[0].length() - 1 - 2));
-          System.out.println("Character at index " + tokens[0].charAt(i));
-          System.out.println(tokens[0]);
+
           if (tokens[0].charAt(i) == '1'){
             currentNode = currentNode.getLeftChild();
-            System.out.println("left");
+
             i+=2;
           }
 
           else if (tokens[0].charAt(i) == '2'){
             currentNode = currentNode.getMiddleChild();
-            System.out.println("mid");
+
             i+=2;
           }
 
           else if (tokens[0].charAt(i) == '3'){
             currentNode = currentNode.getRightChild();
-            System.out.println("right");
+
             i+=2;
           }
 
@@ -60,7 +50,7 @@ public class StoryTree{
         }
         newTree.cursor = currentNode;
         newTree.addChild(newNode);
-        counter++;
+
 
       }
       fileIn.close();
@@ -83,7 +73,10 @@ public class StoryTree{
 
     try {
       PrintWriter fileOut = new PrintWriter(new File(filename));
-      //fileOut.println(tree.cursor.preorder()); //TESTING
+      tree.cursor.preorder();
+      fileOut.println(StoryTreeNode.lines); //TESTING
+
+
       fileOut.close();
 
     }
@@ -157,7 +150,7 @@ public class StoryTree{
   }
 
   public void resetCursor(){
-    cursor = root;
+    cursor = root.getLeftChild();
   }
 
   public void selectChild(String position) throws InvalidArgumentException, NodeNotPresentException{
@@ -217,13 +210,48 @@ public class StoryTree{
 
 
   public StoryTreeNode removeChild(String position) throws NodeNotPresentException{
-    StoryTreeNode nodePtr = root;
-    StoryTreeNode parent = null;
-    while (nodePtr != null){
-      parent = nodePtr;
+    StoryTreeNode currentNode = root;
+    int endPos = 0;
+    int i = 0;
+    while (i <= (position.length() - 1 - 2)){
+      if (position.charAt(i) == '1'){
+        currentNode = currentNode.getLeftChild();
+        endPos = 1;
+        i+=2;
+      }
+
+      else if (position.charAt(i) == '2'){
+        currentNode = currentNode.getMiddleChild();
+        endPos = 2;
+        i+=2;
+      }
+
+      else if (position.charAt(i) == '3'){
+        currentNode = currentNode.getRightChild();
+        endPos = 3;
+        i+=2;
+      }
+    }
+    cursor = currentNode;
+    StoryTreeNode removed;
+    if (endPos == 1){
+      removed = cursor.getLeftChild();
+      cursor.setLeftChild(null);
+    }
+    else if (endPos == 2){
+      removed = cursor.getMiddleChild();
+      cursor.setMiddleChild(null);
+    }
+    else if (endPos == 3) {
+      removed = cursor.getRightChild();
+      cursor.setRightChild(null);
 
     }
-    return nodePtr;
+    else throw new NodeNotPresentException("");
+
+    this.cursor.leftAlign();
+    return removed;
+
   }
 
 
@@ -246,18 +274,18 @@ public class StoryTree{
     cursor = currentNode;
   }
 
-  public int addHelper(String position){
-    int child = -1;
 
-    return child;
-  }
+
+
 
 
   public static void main(String[] args) {
     try{
       StoryTree test = readTree("SampleStory.txt");
       //saveTree("Test.txt", test);
-      test.cursor.preorder();
+      saveTree("test.txt", test);
+
+
 
     }
     catch (DataFormatException e){

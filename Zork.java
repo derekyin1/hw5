@@ -105,11 +105,13 @@ public class Zork{
         System.out.println("Please enter a new option:");
         String option = on.nextLine();
         tree.setCursorOption(option);
+        System.out.println("New option set.");
       }
       else if (s.equals("m") || s.equals("M")){
         System.out.println("Please enter a new message:");
         String message = on.nextLine();
         tree.setCursorMessage(message);
+        System.out.println("New message set.");
       }
       else if (s.equals("a") || s.equals("A")){
         System.out.println("Enter an option:");
@@ -118,6 +120,7 @@ public class Zork{
         String message = on.nextLine();
         try{
           tree.addChild(option, message);
+          System.out.println("Child added.");
         }
         catch (InvalidArgumentException e){
           System.out.println("Invalid inputs.");
@@ -144,6 +147,7 @@ public class Zork{
             try{
               String position = tree.getCursorPosition() + "-" + child;
               tree.removeChild(position);
+              System.out.println("Child removed.");
             }
             catch (NodeNotPresentException e){
               System.out.println("Error. Selected child does not exist.");
